@@ -1,5 +1,6 @@
 package com.crown.backend.service;
 
+import com.crown.backend.domain.Attachment;
 import com.crown.backend.domain.Conversation;
 import com.crown.backend.domain.Message;
 import com.crown.backend.domain.User;
@@ -12,8 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,11 +33,11 @@ public class MessageService {
                 .orElseThrow(() -> new IllegalArgumentException("Brak nadawcy"));
 
         return dto.recipientIds().stream()
-                .map(recipientId -> createAndSaveMessage(sender, recipientId, dto.subject(), dto.content()))
+                .map(recipientId -> createAndSaveMessage(sender, recipientId, dto.subject(), dto.content(), files))
                 .collect(Collectors.toList());
     }
 
-    private MessageResponseDto createAndSaveMessage(User sender, Long recipientId, String subject, String content) {
+    private MessageResponseDto createAndSaveMessage(User sender, Long recipientId, String subject, String content, MultipartFile[] files) {
         User recipient = userService.findById(recipientId)
                 .orElseThrow(() -> new IllegalArgumentException("Brak odbiorcy o ID: " + recipientId));
 
@@ -43,7 +45,6 @@ public class MessageService {
 
         Message message = Message.builder()
                 .sender(sender)
-                .recipient(recipient)
                 .subject(resolveThreadSubject(sender, recipient, subject))
                 .content(content)
                 .sentAt(LocalDateTime.now())
@@ -51,23 +52,37 @@ public class MessageService {
                 .conversation(conversation)
                 .build();
 
+        for (MultipartFile file : files != null ? files : new MultipartFile[0]) {
+            try {
+                message.getAttachments().add(Attachment.builder()
+                        .filename(file.getOriginalFilename())
+                        .contentType(file.getContentType())
+                        .data(file.getBytes())
+                        .message(message)
+                        .build());
+            } catch (IOException e) {
+                throw new RuntimeException("Błąd przy przetwarzaniu pliku: " + file.getOriginalFilename());
+            }
+        }
+
         return messageMapper.toDto(messageRepository.save(message));
     }
 
+
     private Conversation findOrCreateConversation(User participant1, User participant2) {
         return conversationRepository
-                .findByParticipant1AndParticipant2(participant1, participant2)
-                .or(() -> conversationRepository.findByParticipant1AndParticipant2(participant2, participant1))
-                .orElseGet(() -> conversationRepository.save(
-                        Conversation.builder()
-                                .participant1(participant1)
-                                .participant2(participant2)
-                                .build()));
+                .findByParticipants(participant1, participant2)
+                .orElseGet(() -> {
+                    Conversation newConversation = Conversation.builder()
+                            .participants(Arrays.asList(participant1, participant2))
+                            .isGroup(false)
+                            .build();
+                    return conversationRepository.save(newConversation);
+                });
     }
 
-
     private String resolveThreadSubject(User sender, User recipient, String baseSubject) {
-        List<Message> existing = messageRepository.findThreadBetween(sender.getId(), recipient.getId());
+        List<Message> existing = messageRepository.findConversationThread(sender.getId(), recipient.getId());
         if (!existing.isEmpty()) {
             return existing.get(0).getSubject();
         }
@@ -75,7 +90,7 @@ public class MessageService {
     }
 
     public List<MessageResponseDto> getInbox(Long recipientId) {
-        return messageRepository.findByRecipientId(recipientId).stream()
+        return messageRepository.findInboxForUser(recipientId).stream()
                 .map(messageMapper::toDto)
                 .toList();
     }
@@ -97,7 +112,7 @@ public class MessageService {
         messageRepository.deleteById(messageId);
     }
 
-    public void sendToMultiple(Long senderId, List<Long> recipientIds, String subject, String content) {
+    public void sendMassMessage(Long senderId, List<Long> recipientIds, String subject, String content, MultipartFile[] files) {
         User sender = userService.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Brak nadawcy"));
 
@@ -105,18 +120,32 @@ public class MessageService {
             User recipient = userService.findById(recipientId)
                     .orElseThrow(() -> new IllegalArgumentException("Brak odbiorcy"));
 
-            Message msg = Message.builder()
+            Conversation conversation = findOrCreateConversation(sender, recipient);
+
+            Message message = Message.builder()
                     .sender(sender)
-                    .recipient(recipient)
                     .subject(subject)
                     .content(content)
                     .sentAt(LocalDateTime.now())
                     .status(Message.MessageStatus.UNREAD)
+                    .conversation(conversation)
                     .build();
 
-            messageRepository.save(msg);
+            // Obsługa załączników
+            for (MultipartFile file : files != null ? files : new MultipartFile[0]) {
+                try {
+                    message.getAttachments().add(Attachment.builder()
+                            .filename(file.getOriginalFilename())
+                            .contentType(file.getContentType())
+                            .data(file.getBytes())
+                            .message(message)
+                            .build());
+                } catch (IOException e) {
+                    throw new RuntimeException("Błąd przy przetwarzaniu pliku: " + file.getOriginalFilename());
+                }
+            }
+
+            messageRepository.save(message);
         }
     }
-
-    // TODO: Do tablic — patrz kolejne klasy
 }

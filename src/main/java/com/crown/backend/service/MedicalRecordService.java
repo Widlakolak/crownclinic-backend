@@ -48,7 +48,7 @@ public class MedicalRecordService {
             try {
                 record.getAttachments().add(Attachment.builder()
                         .filename(file.getOriginalFilename())
-                        .fileType(file.getContentType())
+                        .contentType(file.getContentType())
                         .data(file.getBytes())
                         .medicalRecord(record)
                         .build());
@@ -82,7 +82,7 @@ public class MedicalRecordService {
             try {
                 record.getAttachments().add(Attachment.builder()
                         .filename(file.getOriginalFilename())
-                        .fileType(file.getContentType())
+                        .contentType(file.getContentType())
                         .data(file.getBytes())
                         .medicalRecord(record)
                         .build());

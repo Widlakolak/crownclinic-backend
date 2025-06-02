@@ -17,12 +17,17 @@ public class Attachment {
 
     private String filename;
 
-    private String fileType;
+    private String contentType;
 
     @Lob
     private byte[] data;
 
     @ManyToOne
     private MedicalRecord medicalRecord;
-}
 
+    @ManyToOne
+    private Message message;
+
+    @ManyToOne
+    private Patient patient;
+}

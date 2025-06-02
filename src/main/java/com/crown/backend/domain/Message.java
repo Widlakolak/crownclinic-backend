@@ -22,12 +22,8 @@ public class Message {
     @ManyToOne
     private User sender;
 
-    @ManyToOne
-    private User recipient;
-
     private String subject;
 
-    @Column(columnDefinition = "TEXT")
     private String content;
 
     private LocalDateTime sentAt;
@@ -35,17 +31,13 @@ public class Message {
     @Enumerated(EnumType.STRING)
     private MessageStatus status;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MessageAttachment> attachments = new ArrayList<>();
-
-    public enum MessageStatus {
-        UNREAD,
-        READ
-    }
-
     @ManyToOne
     private Conversation conversation;
 
-    @ManyToOne
-    private MessageThread thread;
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attachment> attachments = new ArrayList<>();
+
+    public enum MessageStatus {
+        UNREAD, READ
+    }
 }

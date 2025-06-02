@@ -19,17 +19,36 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping
-    public ResponseEntity<MessageResponseDto> sendMessage(
+    public ResponseEntity<List<MessageResponseDto>> sendMessage(
             @RequestPart("message") MessageRequestDto dto,
             @RequestPart("attachments") MultipartFile[] files) {
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(messageService.sendMessage(dto, files));
+        List<MessageResponseDto> sentMessages = messageService.sendMessage(dto, files);
+        return ResponseEntity.status(HttpStatus.CREATED).body(sentMessages);
+    }
+
+    @PostMapping("/broadcast")
+    public ResponseEntity<Void> sendMassMessage(
+            @RequestParam Long senderId,
+            @RequestParam List<Long> recipientIds,
+            @RequestParam String subject,
+            @RequestParam String content,
+            @RequestPart(name = "attachments", required = false) MultipartFile[] files) {
+
+        messageService.sendMassMessage(senderId, recipientIds, subject, content, files);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/inbox/{recipientId}")
-    public List<MessageResponseDto> getInbox(@PathVariable Long recipientId) {
-        return messageService.getInbox(recipientId);
+    public ResponseEntity<List<MessageResponseDto>> getInbox(@PathVariable Long recipientId) {
+        List<MessageResponseDto> inbox = messageService.getInbox(recipientId);
+        return ResponseEntity.ok(inbox);
+    }
+
+    @GetMapping("/sent/{senderId}")
+    public ResponseEntity<List<MessageResponseDto>> getSent(@PathVariable Long senderId) {
+        List<MessageResponseDto> sent = messageService.getSent(senderId);
+        return ResponseEntity.ok(sent);
     }
 
     @PatchMapping("/{id}/read")
@@ -42,22 +61,5 @@ public class MessageController {
     public ResponseEntity<Void> deleteMessage(@PathVariable Long id) {
         messageService.deleteMessage(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/sent/{senderId}")
-    public List<MessageResponseDto> getSent(@PathVariable Long senderId) {
-        return messageService.getSent(senderId);
-    }
-
-    @PostMapping("/broadcast")
-    public ResponseEntity<Void> sendMassMessage(
-            @RequestParam Long senderId,
-            @RequestParam List<Long> recipientIds,
-            @RequestParam String subject,
-            @RequestParam String content,
-            @RequestPart("attachments") MultipartFile[] files) {
-
-        messageService.sendMassMessage(senderId, recipientIds, subject, content, files);
-        return ResponseEntity.ok().build();
     }
 }
