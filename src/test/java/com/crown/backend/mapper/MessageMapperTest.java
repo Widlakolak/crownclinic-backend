@@ -46,6 +46,7 @@ class MessageMapperTest {
         Message message = Message.builder()
                 .id(10L)
                 .sender(sender)
+                .conversation(conversation)
                 .subject("Testowa wiadomość")
                 .content("To jest treść testowa.")
                 .sentAt(LocalDateTime.of(2025, 6, 1, 10, 0))
@@ -62,7 +63,7 @@ class MessageMapperTest {
         assertEquals("Testowa wiadomość", dto.subject());
         assertEquals("To jest treść testowa.", dto.content());
         assertEquals("John Smith", dto.senderName());
-        assertEquals("Anna Kowalska", dto.recipientName());
+        assertEquals(List.of("Anna Kowalska"), dto.recipientName());
         assertEquals(Message.MessageStatus.UNREAD, dto.status());
         assertEquals(2, dto.attachmentNames().size());
         assertTrue(dto.attachmentNames().contains("test1.pdf"));
@@ -101,6 +102,7 @@ class MessageMapperTest {
         Message message = Message.builder()
                 .id(20L)
                 .sender(sender)
+                .conversation(conversation)
                 .subject("Grupowa wiadomość")
                 .content("Hej wszystkim!")
                 .sentAt(LocalDateTime.of(2025, 6, 2, 15, 0))
@@ -114,7 +116,7 @@ class MessageMapperTest {
 
         // then
         assertEquals("John Smith", dto.senderName());
-        assertEquals("Anna Kowalska, Kamil Nowak", dto.recipientName());
+        assertIterableEquals(List.of("Anna Kowalska", "Kamil Nowak"), dto.recipientName());
         assertEquals("Grupowa wiadomość", dto.subject());
         assertEquals("Hej wszystkim!", dto.content());
         assertEquals(1, dto.attachmentNames().size());

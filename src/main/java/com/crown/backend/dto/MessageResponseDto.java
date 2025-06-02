@@ -10,7 +10,7 @@ public record MessageResponseDto(
         String subject,
         String content,
         String senderName,
-        String recipientName,
+        List<String> recipientName,
         LocalDateTime sentAt,
         Message.MessageStatus status,
         List<String> attachmentNames
