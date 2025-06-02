@@ -34,6 +34,7 @@ public class Message {
     @ManyToOne
     private Conversation conversation;
 
+    @Builder.Default
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 

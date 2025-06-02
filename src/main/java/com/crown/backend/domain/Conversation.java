@@ -21,11 +21,14 @@ public class Conversation {
     private String topic;
 
     private boolean isGroup;
+
     private boolean isPublic;
 
+    @Builder.Default
     @ManyToMany
     private List<User> participants = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages = new ArrayList<>();
 }

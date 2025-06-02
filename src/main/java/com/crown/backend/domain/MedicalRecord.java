@@ -34,6 +34,7 @@ public class MedicalRecord {
     @ManyToOne
     private User createdBy;
 
+    @Builder.Default
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 

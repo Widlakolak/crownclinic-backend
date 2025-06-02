@@ -29,6 +29,7 @@ public class Patient {
 
     private LocalDate dateOfBirth;
 
+    @Builder.Default
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 }
