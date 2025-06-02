@@ -1,0 +1,198 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GoogleCalendarService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.crown.backend.service</a>
+</div>
+
+<h1>Coverage Summary for Class: GoogleCalendarService (com.crown.backend.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GoogleCalendarService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33,3%
+  </span>
+  <span class="absValue">
+    (2/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    7,3%
+  </span>
+  <span class="absValue">
+    (3/41)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.crown.backend.service;
+&nbsp;
+&nbsp;import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+&nbsp;import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+&nbsp;import com.google.api.client.json.jackson2.JacksonFactory;
+&nbsp;import com.google.api.services.calendar.Calendar;
+&nbsp;import com.google.api.services.calendar.model.*;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.io.FileInputStream;
+&nbsp;import java.io.IOException;
+&nbsp;import java.security.GeneralSecurityException;
+&nbsp;import java.time.ZoneId;
+&nbsp;import java.time.ZonedDateTime;
+&nbsp;import java.util.Collections;
+&nbsp;
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;@Service
+<b class="fc">&nbsp;public class GoogleCalendarService {</b>
+&nbsp;
+&nbsp;    private static final String APPLICATION_NAME = &quot;CrownClinic&quot;;
+&nbsp;    private static final String CREDENTIALS_PATH = &quot;src/main/resources/credentials.json&quot;;
+<b class="fc">&nbsp;    private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();</b>
+&nbsp;
+&nbsp;    private Calendar getCalendarService() throws GeneralSecurityException, IOException {
+<b class="nc">&nbsp;        GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(CREDENTIALS_PATH))</b>
+<b class="nc">&nbsp;                .createScoped(Collections.singleton(&quot;https://www.googleapis.com/auth/calendar&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        return new Calendar.Builder(</b>
+<b class="nc">&nbsp;                GoogleNetHttpTransport.newTrustedTransport(),</b>
+&nbsp;                JSON_FACTORY,
+&nbsp;                credential
+<b class="nc">&nbsp;        ).setApplicationName(APPLICATION_NAME).build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String createEvent(String calendarId, String summary, String description, ZonedDateTime startDateTime, ZonedDateTime endDateTime) {
+&nbsp;        try {
+<b class="nc">&nbsp;            Event event = new Event()</b>
+<b class="nc">&nbsp;                    .setSummary(summary)</b>
+<b class="nc">&nbsp;                    .setDescription(description);</b>
+&nbsp;
+<b class="nc">&nbsp;            EventDateTime start = new EventDateTime()</b>
+<b class="nc">&nbsp;                    .setDateTime(new com.google.api.client.util.DateTime(startDateTime.toInstant().toEpochMilli()))</b>
+<b class="nc">&nbsp;                    .setTimeZone(ZoneId.systemDefault().toString());</b>
+<b class="nc">&nbsp;            event.setStart(start);</b>
+&nbsp;
+<b class="nc">&nbsp;            EventDateTime end = new EventDateTime()</b>
+<b class="nc">&nbsp;                    .setDateTime(new com.google.api.client.util.DateTime(endDateTime.toInstant().toEpochMilli()))</b>
+<b class="nc">&nbsp;                    .setTimeZone(ZoneId.systemDefault().toString());</b>
+<b class="nc">&nbsp;            event.setEnd(end);</b>
+&nbsp;
+<b class="nc">&nbsp;            Event created = getCalendarService().events().insert(calendarId, event).execute();</b>
+<b class="nc">&nbsp;            log.info(&quot;Utworzono wydarzenie w Google Calendar: {}&quot;, created.getHtmlLink());</b>
+<b class="nc">&nbsp;            return created.getId();</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Błąd przy tworzeniu wydarzenia: {}&quot;, e.getMessage());</b>
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;Nie udało się utworzyć wydarzenia w Google Calendar&quot;, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void updateEvent(String calendarId, String eventId, String newSummary, String newDescription, ZonedDateTime startDateTime, ZonedDateTime endDateTime) {
+&nbsp;        try {
+<b class="nc">&nbsp;            Event event = getCalendarService().events().get(calendarId, eventId).execute();</b>
+&nbsp;
+<b class="nc">&nbsp;            event.setSummary(newSummary);</b>
+<b class="nc">&nbsp;            event.setDescription(newDescription);</b>
+&nbsp;
+<b class="nc">&nbsp;            event.setStart(new EventDateTime()</b>
+<b class="nc">&nbsp;                    .setDateTime(new com.google.api.client.util.DateTime(startDateTime.toInstant().toEpochMilli()))</b>
+<b class="nc">&nbsp;                    .setTimeZone(ZoneId.systemDefault().toString()));</b>
+&nbsp;
+<b class="nc">&nbsp;            event.setEnd(new EventDateTime()</b>
+<b class="nc">&nbsp;                    .setDateTime(new com.google.api.client.util.DateTime(endDateTime.toInstant().toEpochMilli()))</b>
+<b class="nc">&nbsp;                    .setTimeZone(ZoneId.systemDefault().toString()));</b>
+&nbsp;
+<b class="nc">&nbsp;            getCalendarService().events().update(calendarId, eventId, event).execute();</b>
+<b class="nc">&nbsp;            log.info(&quot;Zaktualizowano wydarzenie w Google Calendar: {}&quot;, eventId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Błąd przy aktualizacji wydarzenia: {}&quot;, e.getMessage());</b>
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;Nie udało się zaktualizować wydarzenia w Google Calendar&quot;, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void deleteEvent(String calendarId, String eventId) {
+&nbsp;        try {
+<b class="nc">&nbsp;            getCalendarService().events().delete(calendarId, eventId).execute();</b>
+<b class="nc">&nbsp;            log.info(&quot;Usunięto wydarzenie z Google Calendar: {}&quot;, eventId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Błąd przy usuwaniu wydarzenia: {}&quot;, e.getMessage());</b>
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;Nie udało się usunąć wydarzenia z Google Calendar&quot;, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-02 15:23</div>
+</div>
+</body>
+</html>
