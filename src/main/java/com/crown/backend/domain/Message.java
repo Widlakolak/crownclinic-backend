@@ -40,4 +40,12 @@ public class Message {
     public enum MessageStatus {
         UNREAD, READ
     }
+
+    @ManyToMany
+    @JoinTable(
+            name = "message_recipients",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> recipients;
 }

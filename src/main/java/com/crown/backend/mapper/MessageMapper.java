@@ -16,7 +16,7 @@ public class MessageMapper {
         String senderName = message.getSender().getFirstName() + " " + message.getSender().getLastName();
 
         List<String> recipientNames = message.getConversation().getParticipants().stream()
-                .filter(user -> !user.getId().equals(message.getSender().getId()))
+                .filter(user -> !user.equals(message.getSender()))
                 .map(user -> user.getFirstName() + " " + user.getLastName())
                 .collect(Collectors.toList());
 
