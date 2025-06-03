@@ -13,5 +13,5 @@ public record MessageResponseDto(
         List<String> recipientName,
         LocalDateTime sentAt,
         Message.MessageStatus status,
-        List<String> attachmentNames
+        List<AttachmentResponseDto> attachments
 ) {}

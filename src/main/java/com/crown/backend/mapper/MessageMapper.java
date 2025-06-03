@@ -1,16 +1,18 @@
 package com.crown.backend.mapper;
 
-import com.crown.backend.domain.Attachment;
 import com.crown.backend.domain.Message;
-import com.crown.backend.domain.User;
 import com.crown.backend.dto.MessageResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class MessageMapper {
+
+    private final AttachmentMapper attachmentMapper;
 
     public MessageResponseDto toDto(Message message) {
         String senderName = message.getSender().getFirstName() + " " + message.getSender().getLastName();
@@ -20,10 +22,6 @@ public class MessageMapper {
                 .map(user -> user.getFirstName() + " " + user.getLastName())
                 .collect(Collectors.toList());
 
-        List<String> attachmentNames = message.getAttachments().stream()
-                .map(Attachment::getFilename)
-                .toList();
-
         return new MessageResponseDto(
                 message.getId(),
                 message.getSubject(),
@@ -32,7 +30,9 @@ public class MessageMapper {
                 recipientNames,
                 message.getSentAt(),
                 message.getStatus(),
-                attachmentNames
+                message.getAttachments().stream()
+                        .map(attachmentMapper::toDto)
+                        .collect(Collectors.toList())
         );
     }
 }

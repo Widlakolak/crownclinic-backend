@@ -3,9 +3,10 @@ package com.crown.backend.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
-public record MessageRequestDto(
+public record MassMessageRequestDto(
         @NotNull(message = "senderId nie może być nullem")
         Long senderId,
 

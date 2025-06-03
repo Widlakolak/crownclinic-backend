@@ -22,12 +22,21 @@ public class Attachment {
     @Lob
     private byte[] data;
 
-    @ManyToOne
-    private MedicalRecord medicalRecord;
+    @Enumerated(EnumType.STRING)
+    private AttachmentType attachmentType;
+
+    public enum AttachmentType {
+        MESSAGE,
+        MEDICAL_RECORD,
+        PATIENT
+    }
 
     @ManyToOne
     private Message message;
 
     @ManyToOne
     private Patient patient;
+
+    @ManyToOne
+    private MedicalRecord medicalRecord;
 }

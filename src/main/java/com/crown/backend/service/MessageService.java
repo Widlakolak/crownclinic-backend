@@ -59,6 +59,7 @@ public class MessageService {
                         .contentType(file.getContentType())
                         .data(file.getBytes())
                         .message(message)
+                        .attachmentType(Attachment.AttachmentType.MESSAGE)
                         .build());
             } catch (IOException e) {
                 throw new RuntimeException("Błąd przy przetwarzaniu pliku: " + file.getOriginalFilename());
@@ -131,7 +132,6 @@ public class MessageService {
                     .conversation(conversation)
                     .build();
 
-            // Obsługa załączników
             for (MultipartFile file : files != null ? files : new MultipartFile[0]) {
                 try {
                     message.getAttachments().add(Attachment.builder()
@@ -139,6 +139,7 @@ public class MessageService {
                             .contentType(file.getContentType())
                             .data(file.getBytes())
                             .message(message)
+                            .attachmentType(Attachment.AttachmentType.MESSAGE)
                             .build());
                 } catch (IOException e) {
                     throw new RuntimeException("Błąd przy przetwarzaniu pliku: " + file.getOriginalFilename());

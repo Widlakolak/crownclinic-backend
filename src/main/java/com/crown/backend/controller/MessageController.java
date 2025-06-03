@@ -1,8 +1,10 @@
 package com.crown.backend.controller;
 
+import com.crown.backend.dto.MassMessageRequestDto;
 import com.crown.backend.dto.MessageRequestDto;
 import com.crown.backend.dto.MessageResponseDto;
 import com.crown.backend.service.MessageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,8 @@ public class MessageController {
 
     @PostMapping
     public ResponseEntity<List<MessageResponseDto>> sendMessage(
-            @RequestPart("message") MessageRequestDto dto,
-            @RequestPart("attachments") MultipartFile[] files) {
+            @Valid @RequestPart("message") MessageRequestDto dto,
+            @RequestPart(name = "attachments", required = false) MultipartFile[] files) {
 
         List<MessageResponseDto> sentMessages = messageService.sendMessage(dto, files);
         return ResponseEntity.status(HttpStatus.CREATED).body(sentMessages);
@@ -29,13 +31,10 @@ public class MessageController {
 
     @PostMapping("/broadcast")
     public ResponseEntity<Void> sendMassMessage(
-            @RequestParam Long senderId,
-            @RequestParam List<Long> recipientIds,
-            @RequestParam String subject,
-            @RequestParam String content,
+            @Valid @RequestPart("message") MassMessageRequestDto dto,
             @RequestPart(name = "attachments", required = false) MultipartFile[] files) {
 
-        messageService.sendMassMessage(senderId, recipientIds, subject, content, files);
+        messageService.sendMassMessage(dto.senderId(), dto.recipientIds(), dto.subject(), dto.content(), files);
         return ResponseEntity.ok().build();
     }
 

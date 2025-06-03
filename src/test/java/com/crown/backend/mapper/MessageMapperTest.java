@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MessageMapperTest {
 
-    private final MessageMapper mapper = new MessageMapper();
+    private final MessageMapper messageMapper = new MessageMapper(new AttachmentMapper());
 
     @Test
     void shouldMapMessageToDto() {
@@ -56,7 +56,7 @@ class MessageMapperTest {
                 .build();
 
         // when
-        MessageResponseDto dto = mapper.toDto(message);
+        MessageResponseDto dto = messageMapper.toDto(message);
 
         // then
         assertEquals(10L, dto.id());
@@ -65,9 +65,9 @@ class MessageMapperTest {
         assertEquals("John Smith", dto.senderName());
         assertEquals(List.of("Anna Kowalska"), dto.recipientName());
         assertEquals(Message.MessageStatus.UNREAD, dto.status());
-        assertEquals(2, dto.attachmentNames().size());
-        assertTrue(dto.attachmentNames().contains("test1.pdf"));
-        assertTrue(dto.attachmentNames().contains("zdjecie.png"));
+        assertEquals(2, dto.attachments().size());
+        assertTrue(dto.attachments().stream().anyMatch(a -> a.filename().equals("test1.pdf")));
+        assertTrue(dto.attachments().stream().anyMatch(a -> a.filename().equals("zdjecie.png")));
     }
 
     @Test
@@ -112,14 +112,14 @@ class MessageMapperTest {
                 .build();
 
         // when
-        MessageResponseDto dto = mapper.toDto(message);
+        MessageResponseDto dto = messageMapper.toDto(message);
 
         // then
         assertEquals("John Smith", dto.senderName());
         assertIterableEquals(List.of("Anna Kowalska", "Kamil Nowak"), dto.recipientName());
         assertEquals("Grupowa wiadomość", dto.subject());
         assertEquals("Hej wszystkim!", dto.content());
-        assertEquals(1, dto.attachmentNames().size());
-        assertTrue(dto.attachmentNames().contains("doc1.pdf"));
+        assertEquals(1, dto.attachments().size());
+        assertTrue(dto.attachments().stream().anyMatch(a -> a.filename().equals("doc1.pdf")));
     }
 }

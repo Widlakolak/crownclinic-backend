@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MedicalRecordMapperTest {
 
-    private final MedicalRecordMapper mapper = new MedicalRecordMapper();
+    private final MedicalRecordMapper mapper = new MedicalRecordMapper(new AttachmentMapper());
 
     @Test
     void shouldMapMedicalRecordToDto() {
@@ -56,8 +56,8 @@ class MedicalRecordMapperTest {
         assertEquals("Pacjent w dobrym stanie", dto.description());
         assertEquals("Piotr Wie", dto.createdBy());
         assertEquals("Anna Kowalska", dto.patientName());
-        assertEquals(2, dto.attachmentNames().size());
-        assertTrue(dto.attachmentNames().contains("rtg1.png"));
-        assertTrue(dto.attachmentNames().contains("rtg2.png"));
+        assertEquals(2, dto.attachments().size());
+        assertTrue(dto.attachments().stream().anyMatch(a -> a.filename().equals("rtg1.png")));
+        assertTrue(dto.attachments().stream().anyMatch(a -> a.filename().equals("rtg2.png")));
     }
 }

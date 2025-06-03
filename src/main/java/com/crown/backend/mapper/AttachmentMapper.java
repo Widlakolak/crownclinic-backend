@@ -11,7 +11,8 @@ public class AttachmentMapper {
         return new AttachmentResponseDto(
                 attachment.getId(),
                 attachment.getFilename(),
-                attachment.getContentType()
+                attachment.getContentType(),
+                attachment.getAttachmentType()
         );
     }
 }

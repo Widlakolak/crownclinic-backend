@@ -51,6 +51,7 @@ public class MedicalRecordService {
                         .contentType(file.getContentType())
                         .data(file.getBytes())
                         .medicalRecord(record)
+                        .attachmentType(Attachment.AttachmentType.MEDICAL_RECORD)
                         .build());
             } catch (IOException e) {
                 throw new RuntimeException("File error: " + file.getOriginalFilename());
@@ -85,6 +86,7 @@ public class MedicalRecordService {
                         .contentType(file.getContentType())
                         .data(file.getBytes())
                         .medicalRecord(record)
+                        .attachmentType(Attachment.AttachmentType.MEDICAL_RECORD)
                         .build());
             } catch (IOException e) {
                 throw new RuntimeException("File error: " + file.getOriginalFilename());

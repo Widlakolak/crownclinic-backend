@@ -10,5 +10,5 @@ public record MedicalRecordResponseDto(
         LocalDateTime createdAt,
         String createdBy,
         String patientName,
-        List<String> attachmentNames
+        List<AttachmentResponseDto> attachments
 ) {}
