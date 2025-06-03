@@ -1,5 +1,6 @@
 package com.crown.backend.controller;
 
+import com.crown.backend.config.JwtFilter;
 import com.crown.backend.domain.Appointment;
 import com.crown.backend.dto.AppointmentRequestDto;
 import com.crown.backend.dto.AppointmentResponseDto;
@@ -7,9 +8,11 @@ import com.crown.backend.service.AppointmentService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,10 +26,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.http.MediaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootTest
+@WebMvcTest(controllers = AppointmentController.class, excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = { JwtFilter.class })
+})
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-class AppointmentControllerTest {
+public class AppointmentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
