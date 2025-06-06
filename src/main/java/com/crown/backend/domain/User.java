@@ -25,6 +25,8 @@ public class User {
 
     private String googleCalendarId;
 
+    private String googleAccessToken;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -32,4 +34,6 @@ public class User {
         DOCTOR,
         RECEPTIONIST
     }
+
+    private String password;
 }

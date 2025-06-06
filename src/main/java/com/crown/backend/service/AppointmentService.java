@@ -49,9 +49,10 @@ public class AppointmentService {
         Appointment saved = appointmentRepository.save(appointment);
 
         // Utwórz wydarzenie w kalendarzu Google
-        if (doctor.getGoogleCalendarId() != null) {
+        if (doctor.getGoogleCalendarId() != null && doctor.getGoogleAccessToken() != null) {
             String eventId = googleCalendarService.createEvent(
                     doctor.getGoogleCalendarId(),
+                    doctor.getGoogleAccessToken(),
                     "Wizyta: " + patient.getFirstName() + " " + patient.getLastName(),
                     "Gabinet: Crown Clinic\nLekarz: " + doctor.getFirstName() + " " + doctor.getLastName(),
                     appointment.getStartDateTime(),
@@ -82,9 +83,10 @@ public class AppointmentService {
         existing.setStatus(dto.status());
         existing.setNotes(dto.notes());
 
-        if (existing.getGoogleEventId() != null && doctor.getGoogleCalendarId() != null) {
+        if (existing.getGoogleEventId() != null && doctor.getGoogleCalendarId() != null && doctor.getGoogleAccessToken() != null) {
             googleCalendarService.updateEvent(
                     doctor.getGoogleCalendarId(),
+                    doctor.getGoogleAccessToken(),
                     existing.getGoogleEventId(),
                     "ZAKTUALIZOWANA wizyta: " + patient.getFirstName() + " " + patient.getLastName(),
                     "Gabinet: Crown Clinic\nLekarz: " + doctor.getFirstName() + " " + doctor.getLastName(),
@@ -101,9 +103,12 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Wizyta nie znaleziona"));
 
-        if (appointment.getGoogleEventId() != null && appointment.getDoctor().getGoogleCalendarId() != null) {
+        User doctor = appointment.getDoctor();
+
+        if (appointment.getGoogleEventId() != null && doctor.getGoogleCalendarId() != null && doctor.getGoogleAccessToken() != null) {
             googleCalendarService.deleteEvent(
-                    appointment.getDoctor().getGoogleCalendarId(),
+                    doctor.getGoogleCalendarId(),
+                    doctor.getGoogleAccessToken(),
                     appointment.getGoogleEventId()
             );
         }
