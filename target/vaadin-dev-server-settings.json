@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "D:/dev/crownclinic-backend/./src/main/frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "D:/dev/crownclinic-backend/./src/main/frontend/generated/jar-resources",
+  "staticOutput": "D:/dev/crownclinic-backend/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "D:\\dev\\crownclinic-backend\\target\\classes\\META-INF\\VAADIN\\config",
+  "frontendBundleOutput": "D:\\dev\\crownclinic-backend\\target\\classes\\META-INF\\VAADIN\\webapp",
+  "devBundleOutput": "D:/dev/crownclinic-backend/target/dev-bundle/webapp",
+  "devBundleStatsOutput": "D:/dev/crownclinic-backend/target/dev-bundle/config",
+  "jarResourcesFolder": "D:/dev/crownclinic-backend/./src/main/frontend/generated/jar-resources",
+  "themeName": "",
+  "clientServiceWorkerSource": "D:\\dev\\crownclinic-backend\\target\\sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}

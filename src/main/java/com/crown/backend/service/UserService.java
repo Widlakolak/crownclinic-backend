@@ -3,6 +3,8 @@ package com.crown.backend.service;
 import com.crown.backend.domain.User;
 import com.crown.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,5 +52,16 @@ public class UserService {
 
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public Optional<User> findCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return Optional.empty();
+        }
+
+        String email = auth.getName(); // email jako username
+        return userRepository.findByEmail(email);
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -27,27 +27,43 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest req,
                                         HttpServletResponse resp,
                                         Authentication auth) throws IOException {
+        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) auth;
 
-        var oauth = (OAuth2AuthenticationToken) auth;
-        String email = oauth.getPrincipal().getAttribute("email");
-        String name = oauth.getPrincipal().getAttribute("name");
+        String email = Optional.ofNullable((String) oauthToken.getPrincipal().getAttribute("email")).orElse("");
+        String name = Optional.ofNullable((String) oauthToken.getPrincipal().getAttribute("name")).orElse("");
+        String[] nameParts = name.split(" ", 2);
+        String firstName = nameParts.length > 0 ? nameParts[0] : "";
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
-        // Pobierz dostęp token
-        var client = clientService.loadAuthorizedClient("google", oauth.getName());
+        var client = clientService.loadAuthorizedClient("google", oauthToken.getName());
         String accessToken = client.getAccessToken().getTokenValue();
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
-                        .firstName(name)
+                        .firstName(firstName)
+                        .lastName(lastName)
                         .role(User.Role.DOCTOR)
-                        .googleCalendarId("primary") // Standardowy kalendarz
+                        .googleCalendarId("primary")
                         .build()));
 
-        user.setGoogleAccessToken(accessToken); // jeśli chcesz przechowywać
+        user.setGoogleAccessToken(accessToken);
         userRepository.save(user);
 
         String jwt = jwtService.generateToken(user);
-        resp.sendRedirect("http://localhost:8081/oauth-success?token=" + jwt);
+        String redirectUrl = "http://localhost:8081/login?token=" + jwt;
+
+        resp.sendRedirect(redirectUrl);
+    }
+
+    private String buildRedirectUrl(User user) {
+        String base = "http://localhost:8081/login";
+        if (user.getFirstName() == null || user.getLastName() == null || user.getPhone() == null) {
+            return base + "profile";
+        } else if (user.getRole() == User.Role.RECEPTIONIST) {
+            return base + "reception";
+        } else {
+            return base + "doctor";
+        }
     }
 }

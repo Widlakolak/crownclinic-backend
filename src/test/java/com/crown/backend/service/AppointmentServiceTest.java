@@ -51,12 +51,25 @@ class AppointmentServiceTest {
                 Appointment.Status.SCHEDULED
         );
 
-        Patient mockPatient = Patient.builder().id(1L).build();
-        User mockDoctor = User.builder().id(2L).googleCalendarId("calendar123").build();
+        Patient mockPatient = Patient.builder()
+                .id(1L)
+                .firstName("Jan")
+                .lastName("Kowalski")
+                .build();
+        User mockDoctor = User.builder()
+                .id(2L)
+                .googleCalendarId("calendar123")
+                .googleAccessToken("token123")
+                .firstName("Anna")
+                .lastName("Nowak")
+                .build();
         Appointment appointment = Appointment.builder()
                 .id(1L)
                 .patient(mockPatient)
                 .doctor(mockDoctor)
+                .notes("Konsultacja")
+                .startDateTime(dto.startDateTime())
+                .endDateTime(dto.endDateTime())
                 .status(Appointment.Status.SCHEDULED)
                 .build();
 
@@ -65,13 +78,15 @@ class AppointmentServiceTest {
 
         when(appointmentMapper.toEntity(dto, mockPatient, mockDoctor)).thenReturn(appointment);
         when(appointmentRepository.save(any())).thenReturn(appointment);
-        when(googleCalendarService.createEvent(any(), any(), any(), any(), any())).thenReturn("event123");
+        when(googleCalendarService.createEvent(
+                anyString(), anyString(), anyString(), anyString(),
+                any(ZonedDateTime.class), any(ZonedDateTime.class))
+        ).thenReturn("event123");
 
         appointmentService.createAppointment(dto);
 
         verify(googleCalendarService, times(1))
-                .createEvent(any(), any(), any(), any(), any());
+                .createEvent(anyString(), anyString(), anyString(), anyString(),
+                        any(ZonedDateTime.class), any(ZonedDateTime.class));
     }
-
-
 }
