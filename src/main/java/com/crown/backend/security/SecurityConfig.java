@@ -49,7 +49,13 @@ public class SecurityConfig {
             "/static/**",
             "/images/**",
             "/css/**",
-            "/js/**"
+            "/js/**",
+            "/login",
+            "/auth/login",
+            "/oauth2/**",
+            "/frontend/**",
+            "/images/**",
+            "/styles/**"
     };
 
     @Bean
@@ -63,10 +69,9 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2SuccessHandler)
-                        .defaultSuccessUrl("/", true)
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/auth/login")
+                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .permitAll()
