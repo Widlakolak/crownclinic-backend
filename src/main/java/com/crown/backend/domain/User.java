@@ -32,8 +32,7 @@ public class User {
     private Role role;
 
     public enum Role {
-        DOCTOR,
-        RECEPTIONIST
+        DOCTOR, ADMIN, RECEPTIONIST
     }
 
     private String password;

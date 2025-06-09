@@ -28,6 +28,16 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+        // pomijamy Vaadinowe zasoby i stronę logowania
+        if (path.startsWith("/VAADIN/") ||
+                path.startsWith("/frontend/") ||
+                path.startsWith("/login") ||
+                path.startsWith("/oauth2/authorization")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);

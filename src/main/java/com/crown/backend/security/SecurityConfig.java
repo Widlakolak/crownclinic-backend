@@ -31,31 +31,13 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-    private static final String[] WHITELIST = {
-            "/auth/login",
-            "/api/auth/**",
-            "/oauth2/**",
-            "/login/oauth2/**",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/swagger-ui.html",
-            "/swagger-resources/**",
-            "/h2-console/**",
-            "/VAADIN/**",
-            "/frontend/**",
-            "/index.html",
-            "/",
-            "/favicon.ico",
-            "/static/**",
-            "/images/**",
-            "/css/**",
-            "/js/**",
-            "/login",
-            "/auth/login",
-            "/oauth2/**",
-            "/frontend/**",
-            "/images/**",
-            "/styles/**"
+    private static final String[] WHITELIST = new String[]{
+            "/auth/login", "/api/auth/**", "/oauth2/**", "/login/oauth2/**", "/swagger-ui/**",
+            "/v3/api-docs/**", "/swagger-ui.html", "/swagger-resources/**", "/h2-console/**",
+            "/VAADIN/**", "/frontend/**", "/index.html", "/", "/favicon.ico",
+            "/static/**", "/images/**", "/css/**", "/js/**",
+            "/login", "/auth/login", "/oauth2/**",
+            "/frontend/**", "/images/**", "/styles/**"
     };
 
     @Bean
@@ -68,6 +50,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
                         .successHandler(oAuth2SuccessHandler)
                 )
                 .logout(logout -> logout

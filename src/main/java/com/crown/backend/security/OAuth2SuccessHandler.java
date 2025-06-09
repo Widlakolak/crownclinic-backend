@@ -13,6 +13,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Component
@@ -39,31 +41,42 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = client.getAccessToken().getTokenValue();
 
         User user = userRepository.findByEmail(email)
+                .map(existing -> {
+                    existing.setGoogleAccessToken(accessToken);
+                    existing.setFirstName(existing.getFirstName() != null ? existing.getFirstName() : firstName);
+                    existing.setLastName(existing.getLastName() != null ? existing.getLastName() : lastName);
+                    return userRepository.save(existing);
+                })
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
                         .firstName(firstName)
                         .lastName(lastName)
                         .role(User.Role.DOCTOR)
                         .googleCalendarId("primary")
+                        .googleAccessToken(accessToken)
                         .build()));
 
         user.setGoogleAccessToken(accessToken);
         userRepository.save(user);
 
         String jwt = jwtService.generateToken(user);
-        String redirectUrl = "http://localhost:8081/login?token=" + jwt;
+        String path = buildRedirectPath(user);
+        String jwtTokenEncoded = URLEncoder.encode(jwt, StandardCharsets.UTF_8);
+        String redirectUrl = "http://localhost:8081/" +
+                URLEncoder.encode(path, StandardCharsets.UTF_8) +
+                "?token=" + jwtTokenEncoded;
 
         resp.sendRedirect(redirectUrl);
     }
 
-    private String buildRedirectUrl(User user) {
-        String base = "http://localhost:8081/login";
-        if (user.getFirstName() == null || user.getLastName() == null || user.getPhone() == null) {
-            return base + "profile";
-        } else if (user.getRole() == User.Role.RECEPTIONIST) {
-            return base + "reception";
-        } else {
-            return base + "doctor";
+    private String buildRedirectPath(User user) {
+        if (user.getFirstName()==null||user.getLastName()==null||user.getPhone()==null) {
+            return "profile";
         }
+        return switch (user.getRole()) {
+            case ADMIN -> "admin";
+            case RECEPTIONIST -> "reception";
+            default -> "doctor";
+        };
     }
 }
