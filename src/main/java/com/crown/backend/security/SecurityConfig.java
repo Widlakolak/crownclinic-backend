@@ -36,7 +36,7 @@ public class SecurityConfig {
             "/v3/api-docs/**", "/swagger-ui.html", "/swagger-resources/**", "/h2-console/**",
             "/VAADIN/**", "/frontend/**", "/index.html", "/", "/favicon.ico",
             "/static/**", "/images/**", "/css/**", "/js/**",
-            "/login", "/auth/login", "/oauth2/**",
+            "/login", "/auth/login", "/oauth2/**", "/api/weather/**",
             "/frontend/**", "/images/**", "/styles/**"
     };
 

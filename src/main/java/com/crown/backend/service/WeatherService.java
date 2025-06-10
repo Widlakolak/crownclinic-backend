@@ -21,10 +21,11 @@ public class WeatherService {
 
     public WeatherDto getTodayWeather(String city) throws JsonProcessingException {
         String url = "https://api.openweathermap.org/data/2.5/weather?q={city}&units=metric&appid={key}";
-        String json = rest.getForObject(url, String.class, Map.of("city",city, "key",apiKey));
+        String json = rest.getForObject(url, String.class, Map.of("city", city, "key", apiKey));
         JsonNode root = new ObjectMapper().readTree(json);
-        double temp = root.path("main").path("temp").asDouble();
+        double temperature = root.path("main").path("temp").asDouble();
+        String description = root.path("weather").get(0).path("description").asText();
         String icon = root.path("weather").get(0).path("icon").asText();
-        return new WeatherDto(temp, icon);
+        return new WeatherDto(temperature, description, icon);
     }
 }
