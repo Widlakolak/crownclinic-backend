@@ -1,41 +1,33 @@
 package com.crown.backend.controller;
 
-import com.crown.backend.domain.User;
 import com.crown.backend.dto.AuthRequest;
 import com.crown.backend.dto.AuthResponse;
-import com.crown.backend.service.JwtService;
-import com.crown.backend.service.UserService;
+import com.crown.backend.dto.GoogleLoginRequest;
+import com.crown.backend.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationManager authManager;
-    private final JwtService jwtService;
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
+        AuthResponse response = authenticationService.authenticate(request);
+        return ResponseEntity.ok(response);
+    }
 
-        User user = userService.findByEmail(request.username())
-                .orElseThrow(() -> new UsernameNotFoundException("Nie znaleziono użytkownika"));
-
-        String token = jwtService.generateToken(user);
-
-        return ResponseEntity.ok(new AuthResponse(token));
+    @PostMapping("/login/google")
+    public ResponseEntity<AuthResponse> authenticateWithGoogle(@RequestBody GoogleLoginRequest googleLoginRequest) {
+        AuthResponse response = authenticationService.authenticateWithGoogle(googleLoginRequest.code());
+        return ResponseEntity.ok(response);
     }
 }
