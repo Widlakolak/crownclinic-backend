@@ -1,12 +1,5 @@
 services:
-  # 1. Baza Danych PostgreSQL
-  - type: psql
-    name: crownclinic-db
-    plan: free
-    databaseName: crownclinic_db
-    user: crownclinic_user
-
-  # 2. Backend
+  # === 1. Usługa Backendu ===
   - type: web
     name: crownclinic-backend
     env: docker
@@ -14,34 +7,18 @@ services:
     plan: free
     healthCheckPath: /actuator/health
     envVars:
-      # --- Zmienne do połączenia z bazą danych ---
-      # Render automatycznie wypełni te wartości na podstawie usługi "crownclinic-db"
-      - key: DB_HOST
+      # Odwołujemy się do ISTNIEJĄCEJ bazy danych
+      # Używamy `connectionString`, która jest poprawną właściwością
+      - key: DATABASE_URL
         fromDatabase:
           name: crownclinic-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: crownclinic-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: crownclinic-db
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: crownclinic-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: crownclinic-db
-          property: password
+          property: connectionString
 
       # Mówimy Springowi, żeby użył profilu produkcyjnego
       - key: SPRING_PROFILES_ACTIVE
         value: prod
 
-      # Twoje sekrety (ustawisz je ręcznie w panelu Render)
+      # Twoje sekrety (ustawisz je w panelu Render)
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
@@ -52,8 +29,13 @@ services:
         sync: false
       - key: MAIL_PASSWORD
         sync: false
+      - key: FRONTEND_URL # Ta zmienna zostanie wypełniona dynamicznie przez Render
+        fromService:
+          type: web
+          name: crownclinic-frontend
+          property: url
 
-  # 3. Frontend
+  # === 2. Usługa Frontendu ===
   - type: web
     name: crownclinic-frontend
     env: docker
@@ -65,8 +47,10 @@ services:
         fromService:
           type: web
           name: crownclinic-backend
-          property: url # Ta właściwość jest poprawna dla `fromService`
-      # PORT jest ustawiany automatycznie przez Render dla aplikacji webowych,
-      # więc nie musimy go definiować, ale zostawienie nie zaszkodzi.
+          property: url
+      # PORT jest ustawiany automatycznie przez Render, ale ta zmienna nie szkodzi
       - key: PORT
         value: 8081
+      # Włączamy tryb produkcyjny Vaadin
+      - key: vaadin.productionMode
+        value: true
