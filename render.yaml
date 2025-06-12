@@ -1,0 +1,51 @@
+services:
+  # === 1. Usługa Bazy Danych ===
+  # Zakładamy, że baza o nazwie 'crownclinic-db' została stworzona ręcznie w panelu Render.
+
+  # === 2. Usługa Backendu ===
+  - type: web
+    name: crownclinic-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      # Odwołujemy się do ISTNIEJĄCEJ bazy danych
+      - key: DATABASE_URL 
+        fromDatabase:
+          name: crownclinic-db
+          property: connectionString
+          
+      # Budujemy URL frontendu ręcznie z właściwości 'host'
+      - key: FRONTEND_URL
+        value: https://${CROWNCLINIC_FRONTEND_HOST}
+
+      # Twoje sekrety (ustawisz je w panelu Render, bo sync: false)
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+
+  # === 3. Usługa Frontendu ===
+  # TA SEKCJA MUSI BYĆ POPRAWNIE WCIĘTA
+  - type: web
+    name: crownclinic-frontend
+    env: docker
+    repo: https://github.com/Widlakolak/crownclinic-frontend.git
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      # Budujemy URL backendu ręcznie z właściwości 'host'
+      - key: BACKEND_URL
+        value: https://${CROWNCLINIC_BACKEND_HOST}
+      - key: PORT
+        value: 8081
+      # Włączamy tryb produkcyjny Vaadin
+      - key: vaadin.productionMode
+        value: true
