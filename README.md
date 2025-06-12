@@ -3,6 +3,7 @@
 Backend aplikacji CrownClinic, zbudowany jako serwis REST-owy przy użyciu **Spring Boot 3.5** z uwierzytelnianiem opartym na **JWT** oraz integracją z **OAuth2 (Google)**.
 
 System obsługuje pacjentów, lekarzy, wizyty oraz zewnętrzne serwisy, takie jak Google Calendar i OpenWeatherMap.
+Frontend repozytorium - https://github.com/Widlakolak/crownclinic-frontend
 
 ---
 
