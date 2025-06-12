@@ -3,6 +3,7 @@ package com.crown.backend.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Conversation {
+public class Conversation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

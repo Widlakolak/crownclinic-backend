@@ -3,6 +3,7 @@ package com.crown.backend.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -12,7 +13,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DoctorAvailability {
+public class DoctorAvailability implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
