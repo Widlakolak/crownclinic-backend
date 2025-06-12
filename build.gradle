@@ -70,3 +70,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+springBoot {
+	mainClass = 'com.crown.backend.CrownclinicBackendApplication'
+}

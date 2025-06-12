@@ -41,4 +41,11 @@ EXPOSE 8080
 
 # Komenda, która zostanie wykonana przy starcie kontenera.
 # Uruchamia aplikację.
-CMD java -Dspring.datasource.url=jdbc:${SPRING_DATASOURCE_URL} -jar app.jar
+CMD ["sh", "-c",
+  "java \
+    -Dspring.profiles.active=prod \
+    -Dspring.datasource.url=${SPRING_DATASOURCE_URL} \
+    -Dspring.datasource.username=${SPRING_DATASOURCE_USERNAME} \
+    -Dspring.datasource.password=${SPRING_DATASOURCE_PASSWORD} \
+    -jar app.jar"
+]
