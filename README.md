@@ -27,13 +27,15 @@ Frontend repozytorium - https://github.com/Widlakolak/crownclinic-frontend
 Konto google do testowania funkcjonalności:
 Login - crownclinictest@gmail.com
 Hasło - crownclinictest1206
+
+W widoku kalendarza przy dodawaniu wizyty trzeba wypełnić wszystkie pola, po dodaniu pacjenta trzeba kliknąć na puste pole - będzie widoczny ptaszek zaznaczenia i dodanie pacjenta będzie skuteczne.
 ```
 
 ```
 Zalecane uruchomienie na Render
 
-Frontend: [https://crownclinic-frontend.onrender.com](https://crownclinic-frontend.onrender.com)\
-Backend (Swagger UI): [https://crownclinic-backend.onrender.com/swagger-ui.html](https://crownclinic-backend.onrender.com/swagger-ui.html)
+Frontend: https://crownclinic-frontend.onrender.com
+Backend (Swagger UI): https://crownclinic-backend.onrender.com/swagger-ui.html
 
 > ⚠ Uwaga: Aplikacja może wczytywać się dłużej (nawet 30 sekund) ze względu na darmowy hosting Render (Free Tier), który usypia instancje przy bezczynności.
 ```
