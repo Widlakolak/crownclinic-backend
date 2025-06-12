@@ -41,4 +41,4 @@ EXPOSE 8080
 
 # Komenda, która zostanie wykonana przy starcie kontenera.
 # Uruchamia aplikację.
-CMD ["sh", "-c", "printenv && echo '--- KONIEC ZMIENNYCH ---' && sleep 60"]
+CMD java -Dspring.datasource.url=jdbc:${SPRING_DATASOURCE_URL} -jar app.jar
