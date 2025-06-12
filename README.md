@@ -22,12 +22,14 @@ System obsługuje pacjentów, lekarzy, wizyty oraz zewnętrzne serwisy, takie ja
 
 ## 🏃‍♂️ Jak uruchomić
 
-```Konto google do testowania funkcjonalności:
+```
+Konto google do testowania funkcjonalności:
 Login - crownclinictest@gmail.com
 Hasło - crownclinictest1206
 ```
 
-```Zalecane uruchomienie na Render
+```
+Zalecane uruchomienie na Render
 
 Frontend: [https://crownclinic-frontend.onrender.com](https://crownclinic-frontend.onrender.com)\
 Backend (Swagger UI): [https://crownclinic-backend.onrender.com/swagger-ui.html](https://crownclinic-backend.onrender.com/swagger-ui.html)
