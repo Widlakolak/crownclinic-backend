@@ -89,7 +89,7 @@ Interaktywna dokumentacja: `/swagger-ui.html`
 
 ## ✉ Kontakt
 
-Zespół CrownClinic Java Developers (2025)
+Autor Piotr Więdłocha - piowiedlocha@gmail.com
 
 ---
 
