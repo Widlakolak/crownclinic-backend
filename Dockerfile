@@ -41,4 +41,4 @@ EXPOSE 8080
 
 # Komenda, która zostanie wykonana przy starcie kontenera.
 # Uruchamia aplikację.
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["sh", "-c", "printenv && echo '--- KONIEC ZMIENNYCH ---' && sleep 60"]
