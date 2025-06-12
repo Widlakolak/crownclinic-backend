@@ -1,5 +1,7 @@
+# Zakładamy, że baza danych "crownclinic-db" została stworzona ręcznie w panelu.
+
 services:
-  # === 1. Usługa Backendu ===
+  # === Usługa Backendu ===
   - type: web
     name: crownclinic-backend
     env: docker
@@ -7,18 +9,19 @@ services:
     plan: free
     healthCheckPath: /actuator/health
     envVars:
-      # Odwołujemy się do ISTNIEJĄCEJ bazy danych
-      # Używamy `connectionString`, która jest poprawną właściwością
       - key: DATABASE_URL
         fromDatabase:
           name: crownclinic-db
           property: connectionString
 
-      # Mówimy Springowi, żeby użył profilu produkcyjnego
       - key: SPRING_PROFILES_ACTIVE
         value: prod
 
-      # Twoje sekrety (ustawisz je w panelu Render)
+      # POPRAWKA: Budujemy URL frontendu ręcznie
+      - key: FRONTEND_URL
+        value: https://${CROWNCLINIC_FRONTEND_HOST} # Używamy zmiennej _HOST, którą tworzy Render
+
+      # Twoje sekrety
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
@@ -29,13 +32,8 @@ services:
         sync: false
       - key: MAIL_PASSWORD
         sync: false
-      - key: FRONTEND_URL # Ta zmienna zostanie wypełniona dynamicznie przez Render
-        fromService:
-          type: web
-          name: crownclinic-frontend
-          property: url
 
-  # === 2. Usługa Frontendu ===
+  # === Usługa Frontendu ===
   - type: web
     name: crownclinic-frontend
     env: docker
@@ -43,14 +41,15 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     envVars:
+      # POPRAWKA: Budujemy URL backendu ręcznie
       - key: BACKEND_URL
-        fromService:
-          type: web
-          name: crownclinic-backend
-          property: url
-      # PORT jest ustawiany automatycznie przez Render, ale ta zmienna nie szkodzi
-      - key: PORT
-        value: 8081
+        value: https://${CROWNCLINIC_BACKEND_HOST} # Używamy zmiennej _HOST, którą tworzy Render
+
+      # PORT jest ustawiany automatycznie przez Render dla aplikacji webowych.
+      # Zmienna PORT jest standardem i Render sam ją ustawi, więc możemy ją usunąć dla czystości.
+      # - key: PORT
+      #   value: 8081
+
       # Włączamy tryb produkcyjny Vaadin
       - key: vaadin.productionMode
         value: true
