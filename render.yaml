@@ -1,8 +1,12 @@
 services:
-  # === 1. Usługa Bazy Danych ===
-  # Zakładamy, że baza o nazwie 'crownclinic-db' została stworzona ręcznie w panelu Render.
+  # 1. Baza Danych PostgreSQL
+  - type: psql
+    name: crownclinic-db
+    plan: free
+    databaseName: crownclinic_db
+    user: crownclinic_user
 
-  # === 2. Usługa Backendu ===
+  # 2. Backend
   - type: web
     name: crownclinic-backend
     env: docker
@@ -10,17 +14,34 @@ services:
     plan: free
     healthCheckPath: /actuator/health
     envVars:
-      # Odwołujemy się do ISTNIEJĄCEJ bazy danych
-      - key: DATABASE_URL 
+      # --- Zmienne do połączenia z bazą danych ---
+      # Render automatycznie wypełni te wartości na podstawie usługi "crownclinic-db"
+      - key: DB_HOST
         fromDatabase:
           name: crownclinic-db
-          property: connectionString
-          
-      # Budujemy URL frontendu ręcznie z właściwości 'host'
-      - key: FRONTEND_URL
-        value: https://${CROWNCLINIC_FRONTEND_HOST}
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: crownclinic-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: crownclinic-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: crownclinic-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: crownclinic-db
+          property: password
 
-      # Twoje sekrety (ustawisz je w panelu Render, bo sync: false)
+      # Mówimy Springowi, żeby użył profilu produkcyjnego
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+      # Twoje sekrety (ustawisz je ręcznie w panelu Render)
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
@@ -32,8 +53,7 @@ services:
       - key: MAIL_PASSWORD
         sync: false
 
-  # === 3. Usługa Frontendu ===
-  # TA SEKCJA MUSI BYĆ POPRAWNIE WCIĘTA
+  # 3. Frontend
   - type: web
     name: crownclinic-frontend
     env: docker
@@ -41,11 +61,12 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     envVars:
-      # Budujemy URL backendu ręcznie z właściwości 'host'
       - key: BACKEND_URL
-        value: https://${CROWNCLINIC_BACKEND_HOST}
+        fromService:
+          type: web
+          name: crownclinic-backend
+          property: url # Ta właściwość jest poprawna dla `fromService`
+      # PORT jest ustawiany automatycznie przez Render dla aplikacji webowych,
+      # więc nie musimy go definiować, ale zostawienie nie zaszkodzi.
       - key: PORT
         value: 8081
-      # Włączamy tryb produkcyjny Vaadin
-      - key: vaadin.productionMode
-        value: true
